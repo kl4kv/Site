@@ -1,4 +1,5 @@
 import { PhotoGrid } from "./components/photo-grid"
+import { Footer } from "./components/footer"
 
 export default function Home() {
   return (
@@ -6,6 +7,7 @@ export default function Home() {
       <main>
         <PhotoGrid />
       </main>
+      <Footer />
     </div>
   )
 }
