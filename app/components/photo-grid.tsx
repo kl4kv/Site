@@ -14,12 +14,12 @@ interface Photo {
 const photos: Photo[] = [
   { id: 1, src: "/photos/07db14b81065aaeed8ce548029ed3263.jpg", alt: "Photography", height: "tall" },
   { id: 2, src: "/photos/149c4a05fbfeebb75a698ea47df36d3d.jpg", alt: "Photography", height: "medium" },
-  { id: 3, src: "/photos/1ff1259f35032b5906f06a77f3984558.jpg", alt: "Photography", height: "tall" },
-  { id: 4, src: "/photos/2a9d4360785a5f1a3be400267fa4d9be.jpg", alt: "Photography", height: "tall" },
-  { id: 5, src: "/photos/789ed5ee684efdeea44418519af702f1.jpg", alt: "Photography", height: "medium" },
-  { id: 6, src: "/photos/7c785a56c733f56aea35ffa1e7b4c25a.jpg", alt: "Photography", height: "tall" },
+  { id: 3, src: "/photos/1ff1259f35032b5906f06a77f3984558.jpg", alt: "Photography", height: "short" },
+  { id: 4, src: "/photos/2a9d4360785a5f1a3be400267fa4d9be.jpg", alt: "Photography", height: "short" },
+  { id: 5, src: "/photos/789ed5ee684efdeea44418519af702f1.jpg", alt: "Photography", height: "tall" },
+  { id: 6, src: "/photos/7c785a56c733f56aea35ffa1e7b4c25a.jpg", alt: "Photography", height: "medium" },
   { id: 7, src: "/photos/b8ad4ebc9e668bdae34062ed3fb4e9e4.jpg", alt: "Photography", height: "medium" },
-  { id: 8, src: "/photos/cdb82cc105459517cf64758daf8b195b.jpg", alt: "Photography", height: "tall" },
+  { id: 8, src: "/photos/cdb82cc105459517cf64758daf8b195b.jpg", alt: "Photography", height: "short" },
   { id: 9, src: "/photos/d970add338ab8d84b185658e68cd83a8.jpg", alt: "Photography", height: "tall" },
 ]
 
