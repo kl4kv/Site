@@ -34,7 +34,7 @@ export function Footer() {
                 >
                   <Mail className="size-5" />
                 </Link>
-                
+
                 <Link
                   href="https://www.instagram.com/kl4kv/"
                   target="_blank"
@@ -44,10 +44,21 @@ export function Footer() {
                 >
                   <Instagram className="size-5" />
                 </Link>
-                
+
                 <div className="opacity-50">
                   <MapPin className="size-5" />
                 </div>
+
+                <Link
+                  href="/auth/login"
+                  className="opacity-50 hover:opacity-100 transition-opacity duration-300"
+                  aria-label="Account"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>
