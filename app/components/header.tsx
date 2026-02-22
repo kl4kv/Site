@@ -12,7 +12,7 @@ export function Header() {
               Владимир
             </h1>
             <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Photographer
+              Личный сайт
             </span>
           </Link>
 

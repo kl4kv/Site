@@ -9,13 +9,6 @@ export default function BlogPage() {
       <main className="px-4 py-12 sm:px-6 md:py-16 lg:ml-[22%] lg:mr-[8%] lg:px-0">
         {/* Bio section */}
         <section className="mb-20">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Владимир
-          </h1>
-          <p className="mt-1 text-base text-muted-foreground">
-            Личный блог
-          </p>
-
           <div className="mt-8 max-w-lg font-serif text-base leading-relaxed text-foreground">
             <p>
               Добро пожаловать в мой личный блог. Здесь я делюсь мыслями,
