@@ -7,14 +7,17 @@ export interface Photo {
   alt: string
   height: 'short' | 'medium' | 'tall'
   sort_order: number
+  visible: boolean
   created_at: string
 }
 
 export async function getPhotos(): Promise<Photo[]> {
   console.log('getPhotos called')
+  // Order by visible ASC (invisible first), then by sort_order
   const { data, error } = await supabase
     .from('photos')
     .select('*')
+    .order('visible', { ascending: true })
     .order('sort_order', { ascending: true })
 
   if (error) {
@@ -76,6 +79,26 @@ export async function updatePhotoOrder(
     photo_updates: updates,
   })
   if (error) throw error
+}
+
+export async function togglePhotoVisibility(id: number): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('photos')
+    .select('visible')
+    .eq('id', id)
+    .single()
+
+  if (error) throw error
+
+  const newVisible = !data.visible
+  const { error: updateError } = await supabase
+    .from('photos')
+    .update({ visible: newVisible })
+    .eq('id', id)
+
+  if (updateError) throw updateError
+
+  return newVisible
 }
 
 export function getPhotoUrl(filePath: string): string {

@@ -10,13 +10,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { fileName: originalFileName, height } = body
+    const { fileName: originalFileName, height, visible = false } = body
 
     // Generate unique filename
     const fileExt = originalFileName.split('.').pop() || 'jpg'
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
 
-    console.log('Upload request:', { originalFileName, fileName, height })
+    console.log('Upload request:', { originalFileName, fileName, height, visible })
 
     // Create database record first
     const { data: photo, error: dbError } = await supabase
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
         alt: originalFileName,
         height,
         sort_order: 0,
+        visible,
       })
       .select()
       .single()
