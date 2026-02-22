@@ -6,7 +6,7 @@ export default function BlogPage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="px-4 py-12 sm:px-6 md:py-16 lg:ml-[22%] lg:mr-[8%] lg:px-0">
+      <main className="px-4 py-32 sm:px-6 md:py-36 lg:ml-[22%] lg:mr-[8%] lg:px-0">
         {/* Bio section */}
         <section className="mb-20">
           <div className="mt-8 max-w-lg font-serif text-base leading-relaxed text-foreground">
