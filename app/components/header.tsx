@@ -19,10 +19,10 @@ export function Header() {
           {/* Navigation Links */}
           <div className="flex items-center gap-6">
             <Link
-              href="/blog"
+              href="/photos"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
-              Блог
+              Фото
             </Link>
             <Link
               href="https://www.instagram.com/kl4kv/"
