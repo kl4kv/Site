@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ImageUploader } from '@/components/image-uploader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Plus, Save, Trash2, Edit } from 'lucide-react'
+import { Plus, Save, Trash2, Edit, LogOut } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { User } from '@supabase/supabase-js'
 
 interface Credit {
   label: string
@@ -25,6 +27,7 @@ interface Post {
   cover_image_path: string
   published: boolean
   credits: Credit[]
+  created_at?: string
 }
 
 const emptyPost: Post = {
@@ -48,7 +51,51 @@ export function PostManager() {
   const [currentPost, setCurrentPost] = useState<Post>(emptyPost)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // Загрузка пользователя и постов
+  useEffect(() => {
+    const loadData = async () => {
+      const supabase = createClient()
+      
+      // Получаем пользователя
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      
+      // Загружаем посты
+      await loadPosts()
+      setIsLoading(false)
+    }
+    
+    loadData()
+  }, [])
+
+  const loadPosts = useCallback(async () => {
+    try {
+      const response = await fetch('/api/blog-posts')
+      const result = await response.json()
+      
+      if (result.success) {
+        setPosts(result.data.map((post: any) => ({
+          ...post,
+          cover_image_url: post.cover_image ? 
+            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images/${post.cover_image.replace('/images/', '')}` 
+            : '',
+          cover_image_path: post.cover_image?.replace('/images/', '') || '',
+        })))
+      }
+    } catch (err) {
+      console.error('Load posts error:', err)
+    }
+  }, [])
+
+  const handleSignOut = useCallback(async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.reload()
+  }, [])
 
   const handleImageUploaded = useCallback((url: string, filePath: string) => {
     setCurrentPost(prev => ({
@@ -171,11 +218,39 @@ export function PostManager() {
             Создание и редактирование записей блога
           </p>
         </div>
-        <Button onClick={() => setCurrentPost(emptyPost)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Новый пост
-        </Button>
+        <div className="flex items-center gap-4">
+          {user && (
+            <div className="text-sm text-muted-foreground hidden md:block">
+              {user.email}
+            </div>
+          )}
+          <Button onClick={() => setCurrentPost(emptyPost)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Новый пост
+          </Button>
+          <Button variant="outline" size="icon" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">
+          Загрузка...
+        </div>
+      ) : !user ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground mb-4">
+              Пожалуйста, войдите для управления постами
+            </p>
+            <Button onClick={() => window.location.href = '/auth/login'}>
+              Войти
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
 
       {message && (
         <div
@@ -400,6 +475,8 @@ export function PostManager() {
             </div>
           </CardContent>
         </Card>
+      )}
+        </>
       )}
     </div>
   )
