@@ -81,7 +81,7 @@ export async function uploadBlogImage(
 ): Promise<{ success: boolean; data?: BlogImage; error?: string }> {
   try {
     const supabase = await createClient()
-    
+
     // Валидация типа файла
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
@@ -90,7 +90,7 @@ export async function uploadBlogImage(
         error: 'Неподдерживаемый формат файла. Разрешены: JPEG, PNG, WebP, GIF',
       }
     }
-    
+
     // Валидация размера (макс 10MB)
     const maxSize = 10 * 1024 * 1024
     if (file.size > maxSize) {
@@ -99,24 +99,22 @@ export async function uploadBlogImage(
         error: 'Файл слишком большой. Максимальный размер: 10MB',
       }
     }
-    
+
     // Генерируем уникальное имя файла
     const fileName = generateFileName(file.name)
     const filePath = getFilePath(folder, fileName)
-    
+
     // Читаем файл как ArrayBuffer
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    
-    // Загружаем в Storage
+
+    // Загружаем в Storage (используем ArrayBuffer напрямую)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('images')
-      .upload(filePath, buffer, {
+      .upload(filePath, arrayBuffer, {
         contentType: file.type,
         upsert: false,
-        duplex: 'half',
       })
-    
+
     if (uploadError) {
       console.error('Upload error:', uploadError)
       return {
