@@ -9,18 +9,38 @@ export async function POST(request: NextRequest) {
   )
 
   try {
-    const { updates } = await request.json()
+    const body = await request.json()
+    console.log('Reorder API received:', body)
+    
+    const { updates } = body
+
+    if (!updates || !Array.isArray(updates)) {
+      return NextResponse.json(
+        { error: 'Invalid updates format' },
+        { status: 400 }
+      )
+    }
+
+    console.log('Updating sort_order for:', updates)
 
     // Update each photo's sort order
     for (const { id, sort_order } of updates) {
-      await supabase
+      const { error } = await supabase
         .from('photos')
         .update({ sort_order })
         .eq('id', id)
+      
+      if (error) {
+        console.error(`Error updating photo ${id}:`, error)
+        throw error
+      }
+      
+      console.log(`Updated photo ${id} to sort_order ${sort_order}`)
     }
 
-    // Revalidate the home page cache
+    // Revalidate the home page and photos page cache
     revalidatePath('/')
+    revalidatePath('/photos')
 
     return NextResponse.json({ success: true })
   } catch (error) {

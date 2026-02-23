@@ -12,7 +12,7 @@ export function Footer() {
             <div className="space-y-4">
               <div>
                 <h2 className="text-4xl md:text-4xl font-light tracking-wide opacity-50">
-                  Владимир
+                  Владимир Клочков
                 </h2>
               </div>
             </div>

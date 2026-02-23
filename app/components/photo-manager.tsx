@@ -314,6 +314,8 @@ export function PhotoManager() {
     const oldIndex = photos.findIndex((p) => p.id === active.id)
     const newIndex = photos.findIndex((p) => p.id === over.id)
 
+    console.log('DragEnd:', { activeId: active.id, overId: over.id, oldIndex, newIndex })
+
     const newPhotos = arrayMove(photos, oldIndex, newIndex)
 
     const updates = newPhotos.map((photo, i) => ({
@@ -321,12 +323,22 @@ export function PhotoManager() {
       sort_order: i,
     }))
 
+    console.log('Sending updates:', updates)
+
     try {
-      await fetch('/api/photos/reorder', {
+      const response = await fetch('/api/photos/reorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ updates }),
       })
+
+      console.log('Reorder response:', response.status, response.ok)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Reorder failed')
+      }
+
       setPhotos(newPhotos)
     } catch (error) {
       console.error('Error reordering:', error)

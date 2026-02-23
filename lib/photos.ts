@@ -13,11 +13,10 @@ export interface Photo {
 
 export async function getPhotos(): Promise<Photo[]> {
   console.log('getPhotos called')
-  // Order by visible ASC (invisible first), then by sort_order
+  // Order by sort_order ASC only (ignore visible for ordering)
   const { data, error } = await supabase
     .from('photos')
     .select('*')
-    .order('visible', { ascending: true })
     .order('sort_order', { ascending: true })
 
   if (error) {
