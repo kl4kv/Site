@@ -120,11 +120,16 @@ export function PostManager() {
   }, [])
 
   const handleImageUploaded = useCallback((url: string, filePath: string) => {
-    setCurrentPost(prev => ({
-      ...prev,
-      cover_image_url: url,
-      cover_image_path: filePath,
-    }))
+    console.log('[PostManager] Image uploaded:', { url, filePath })
+    setCurrentPost(prev => {
+      const updated = {
+        ...prev,
+        cover_image_url: url,
+        cover_image_path: filePath,
+      }
+      console.log('[PostManager] Updated currentPost:', updated)
+      return updated
+    })
   }, [])
 
   const handleCreditChange = useCallback((index: number, field: 'label' | 'value', value: string) => {
@@ -231,6 +236,16 @@ export function PostManager() {
       .trim()
   }, [])
 
+  const handleNewPost = useCallback(() => {
+    console.log('[PostManager] New post button clicked')
+    console.log('[PostManager] emptyPost:', emptyPost)
+    setCurrentPost(emptyPost)
+    setIsEditing(false)
+    setMessage(null)
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -246,7 +261,7 @@ export function PostManager() {
               {user.email}
             </div>
           )}
-          <Button onClick={() => setCurrentPost(emptyPost)}>
+          <Button onClick={handleNewPost}>
             <Plus className="h-4 w-4 mr-2" />
             Новый пост
           </Button>
@@ -264,8 +279,7 @@ export function PostManager() {
         </div>
       ) : (
         <>
-
-      {message && (
+          {message && (
         <div
           className={`p-4 rounded-lg ${
             message.type === 'success' 

@@ -9,7 +9,7 @@ interface BlogEntryProps {
   title: string
   credits: Credit[]
   image: {
-    src: string
+    src: string | undefined
     alt: string
   }
   children: React.ReactNode
@@ -39,15 +39,17 @@ export function BlogEntry({ title, credits, image, children }: BlogEntryProps) {
         {/* Image + Content - Right Side */}
         <div className="flex-1 flex flex-col gap-8">
           {/* Image */}
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-muted">
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
-            />
-          </div>
+          {image.src && (
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-muted">
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
+              />
+            </div>
+          )}
 
           {/* Content */}
           <div className="prose prose-neutral dark:prose-invert max-w-none font-serif text-base leading-relaxed text-foreground">

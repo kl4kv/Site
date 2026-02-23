@@ -113,6 +113,7 @@ export async function uploadBlogImage(
     console.log('[blog-images] ArrayBuffer size:', arrayBuffer.byteLength)
 
     // Загружаем в Storage (используем ArrayBuffer напрямую)
+    console.log('[blog-images] Starting Supabase upload...')
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('images')
       .upload(filePath, arrayBuffer, {
@@ -120,10 +121,13 @@ export async function uploadBlogImage(
         upsert: false,
       })
 
-    console.log('[blog-images] Upload result:', { uploadData, uploadError })
+    console.log('[blog-images] Upload result:', { 
+      uploadData: uploadData ? { path: uploadData.path } : null, 
+      uploadError 
+    })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
+      console.error('[blog-images] Upload failed:', uploadError)
       return {
         success: false,
         error: `Ошибка загрузки: ${uploadError.message}`,
