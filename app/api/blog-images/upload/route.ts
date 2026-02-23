@@ -1,2 +1,58 @@
-// Re-export from parent route
-export { POST } from '../route'
+import { NextRequest, NextResponse } from 'next/server'
+import { uploadBlogImage, IMAGE_FOLDERS } from '@/lib/blog-images'
+
+/**
+ * POST /api/blog-images/upload
+ * Загрузка изображения
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    const folder = formData.get('folder') as string | null
+
+    if (!file) {
+      return NextResponse.json(
+        { success: false, error: 'Файл не найден' },
+        { status: 400 }
+      )
+    }
+
+    // Определяем папку
+    let targetFolder = IMAGE_FOLDERS.covers
+    if (folder === 'content') {
+      targetFolder = IMAGE_FOLDERS.content
+    } else if (folder === 'general') {
+      targetFolder = IMAGE_FOLDERS.general
+    }
+
+    // Загружаем изображение
+    const result = await uploadBlogImage(file, targetFolder)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        url: result.data!.url,
+        file_path: result.data!.file_path,
+        file_name: result.data!.file_name,
+        size: result.data!.size,
+      },
+    })
+  } catch (error) {
+    console.error('Upload error:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Ошибка загрузки'
+      },
+      { status: 500 }
+    )
+  }
+}
