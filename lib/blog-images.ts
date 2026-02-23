@@ -80,6 +80,8 @@ export async function uploadBlogImage(
   folder: ImageFolder = IMAGE_FOLDERS.covers
 ): Promise<{ success: boolean; data?: BlogImage; error?: string }> {
   try {
+    console.log('[blog-images] uploadBlogImage called:', { name: file.name, type: file.type, size: file.size, folder })
+    
     const supabase = await createClient()
 
     // Валидация типа файла
@@ -104,8 +106,11 @@ export async function uploadBlogImage(
     const fileName = generateFileName(file.name)
     const filePath = getFilePath(folder, fileName)
 
+    console.log('[blog-images] Generated file path:', filePath)
+
     // Читаем файл как ArrayBuffer
     const arrayBuffer = await file.arrayBuffer()
+    console.log('[blog-images] ArrayBuffer size:', arrayBuffer.byteLength)
 
     // Загружаем в Storage (используем ArrayBuffer напрямую)
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -115,6 +120,8 @@ export async function uploadBlogImage(
         upsert: false,
       })
 
+    console.log('[blog-images] Upload result:', { uploadData, uploadError })
+
     if (uploadError) {
       console.error('Upload error:', uploadError)
       return {
@@ -122,11 +129,13 @@ export async function uploadBlogImage(
         error: `Ошибка загрузки: ${uploadError.message}`,
       }
     }
-    
+
     // Получаем публичный URL
     const { data: urlData } = supabase.storage
       .from('images')
       .getPublicUrl(filePath)
+
+    console.log('[blog-images] Public URL:', urlData?.publicUrl)
     
     // Создаём запись об изображении
     const image: BlogImage = {

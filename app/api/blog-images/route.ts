@@ -7,17 +7,22 @@ import { uploadBlogImage, deleteBlogImage, listBlogImages, IMAGE_FOLDERS } from 
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('[API blog-images] Received POST request')
+    
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const folder = formData.get('folder') as string | null
-    
+
+    console.log('[API blog-images] File:', file ? { name: file.name, type: file.type, size: file.size } : 'null')
+    console.log('[API blog-images] Folder:', folder)
+
     if (!file) {
       return NextResponse.json(
         { success: false, error: 'Файл не найден' },
         { status: 400 }
       )
     }
-    
+
     // Определяем папку
     let targetFolder = IMAGE_FOLDERS.covers
     if (folder === 'content') {
@@ -25,17 +30,21 @@ export async function POST(request: NextRequest) {
     } else if (folder === 'general') {
       targetFolder = IMAGE_FOLDERS.general
     }
-    
+
+    console.log('[API blog-images] Target folder:', targetFolder)
+
     // Загружаем изображение
     const result = await uploadBlogImage(file, targetFolder)
-    
+
+    console.log('[API blog-images] Upload result:', result)
+
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 400 }
       )
     }
-    
+
     return NextResponse.json({
       success: true,
       data: {
@@ -46,11 +55,11 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('[API blog-images] Error:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Ошибка загрузки' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Ошибка загрузки'
       },
       { status: 500 }
     )

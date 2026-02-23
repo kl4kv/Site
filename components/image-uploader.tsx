@@ -53,31 +53,41 @@ export function ImageUploader({
 
   const handleUpload = useCallback(async () => {
     if (!selectedFile) return
-    
+
     setIsUploading(true)
     setError(null)
-    
+
+    console.log('[ImageUploader] Starting upload...', { fileName: selectedFile.name, folder })
+
     try {
       const formData = new FormData()
       formData.append('file', selectedFile)
       formData.append('folder', folder)
-      
+
       const response = await fetch('/api/blog-images/upload', {
         method: 'POST',
         body: formData,
       })
-      
+
+      console.log('[ImageUploader] Response status:', response.status)
+
       const result = await response.json()
-      
+      console.log('[ImageUploader] Response body:', result)
+
       if (!result.success) {
         throw new Error(result.error || 'Ошибка загрузки')
       }
+
+      console.log('[ImageUploader] Upload successful:', result.data)
       
       setFilePath(result.data.file_path)
       setPreviewUrl(result.data.url)
+      
+      console.log('[ImageUploader] Calling onImageUploaded with:', { url: result.data.url, filePath: result.data.file_path })
       onImageUploaded(result.data.url, result.data.file_path)
       setSelectedFile(null)
     } catch (err) {
+      console.error('[ImageUploader] Upload error:', err)
       setError(err instanceof Error ? err.message : 'Ошибка загрузки')
     } finally {
       setIsUploading(false)
