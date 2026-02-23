@@ -37,7 +37,7 @@ const emptyPost: Post = {
   excerpt: '',
   cover_image_url: '',
   cover_image_path: '',
-  published: false,
+  published: true,  // По умолчанию опубликовано
   credits: [
     { label: 'Локация', value: '' },
     { label: 'Дата', value: '' },
@@ -298,6 +298,10 @@ export function PostManager() {
           <CardDescription>
             Заполните информацию о посте
           </CardDescription>
+          {/* Debug info */}
+          <p className="text-xs text-muted-foreground">
+            Debug: isEditing={String(isEditing)}, currentPost.title="{currentPost.title}"
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Cover Image */}

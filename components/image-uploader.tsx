@@ -25,30 +25,40 @@ export function ImageUploader({
   className,
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(existingImageUrl || null)
-  const [filePath, setFilePath] = useState<string | null>(existingFilePath || null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    existingImageUrl ? existingImageUrl : null
+  )
+  const [filePath, setFilePath] = useState<string | null>(
+    existingFilePath ? existingFilePath : null
+  )
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const handleFileSelect = useCallback((file: File) => {
+    console.log('[ImageUploader] handleFileSelect called:', { name: file.name, type: file.type, size: file.size })
     setError(null)
-    
+
     // Валидация типа
     const allowedTypes = accept.split(',').map(t => t.trim())
     if (!allowedTypes.includes(file.type)) {
+      console.log('[ImageUploader] Invalid file type:', file.type)
       setError('Неподдерживаемый формат файла')
       return
     }
-    
+
     // Валидация размера
     const maxSizeBytes = maxSizeMB * 1024 * 1024
     if (file.size > maxSizeBytes) {
+      console.log('[ImageUploader] File too large:', file.size)
       setError(`Файл слишком большой (макс. ${maxSizeMB}MB)`)
       return
     }
-    
+
+    console.log('[ImageUploader] File validated, setting state')
     setSelectedFile(file)
-    setPreviewUrl(URL.createObjectURL(file))
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    console.log('[ImageUploader] State set:', { selectedFile: file.name })
   }, [accept, maxSizeMB])
 
   const handleUpload = useCallback(async () => {
@@ -80,11 +90,18 @@ export function ImageUploader({
 
       console.log('[ImageUploader] Upload successful:', result.data)
       
-      setFilePath(result.data.file_path)
-      setPreviewUrl(result.data.url)
+      // Сохраняем путь и URL
+      const newFilePath = result.data.file_path
+      const newUrl = result.data.url
       
-      console.log('[ImageUploader] Calling onImageUploaded with:', { url: result.data.url, filePath: result.data.file_path })
-      onImageUploaded(result.data.url, result.data.file_path)
+      setFilePath(newFilePath)
+      setPreviewUrl(newUrl)
+      
+      // Вызываем onImageUploaded с правильными значениями
+      console.log('[ImageUploader] Calling onImageUploaded with:', { url: newUrl, filePath: newFilePath })
+      onImageUploaded(newUrl, newFilePath)
+      
+      // Очищаем selectedFile но НЕ previewUrl и filePath
       setSelectedFile(null)
     } catch (err) {
       console.error('[ImageUploader] Upload error:', err)
@@ -126,118 +143,117 @@ export function ImageUploader({
     e.preventDefault()
   }, [])
 
-  return (
-    <div className={cn('space-y-4', className)}>
-      {/* Preview area */}
-      {previewUrl && (
+  // Если уже есть загруженное изображение
+  if (previewUrl && !selectedFile) {
+    return (
+      <div className={cn('space-y-4', className)}>
         <div className="relative aspect-video w-full max-w-lg rounded-lg overflow-hidden bg-muted border">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="w-full h-full object-cover"
-          />
-          {!isUploading && (
-            <Button
-              size="icon"
-              variant="destructive"
-              className="absolute top-2 right-2 h-8 w-8"
-              onClick={handleRemoveImage}
-              type="button"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+          <Button
+            size="icon"
+            variant="destructive"
+            className="absolute top-2 right-2 h-8 w-8"
+            onClick={handleRemoveImage}
+            type="button"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
-      )}
-
-      {/* Upload area */}
-      {!previewUrl && (
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          className={cn(
-            'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
-            'hover:border-primary hover:bg-primary/5',
-            selectedFile ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
-          )}
-        >
-          <div className="flex flex-col items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-              <ImageIcon className="h-6 w-6 text-muted-foreground" />
-            </div>
-            
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {selectedFile ? selectedFile.name : 'Перетащите изображение сюда'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                или нажмите для выбора файла (макс. {maxSizeMB}MB)
-              </p>
-              {selectedFile && (
-                <p className="text-xs text-muted-foreground">
-                  {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => document.getElementById('image-input')?.click()}
-                type="button"
-                disabled={isUploading}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Выбрать файл
-              </Button>
-              
-              {selectedFile && (
-                <>
-                  <Button
-                    onClick={handleUpload}
-                    disabled={isUploading}
-                    type="button"
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Загрузка...
-                      </>
-                    ) : (
-                      'Загрузить'
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedFile(null)
-                      setError(null)
-                    }}
-                    type="button"
-                    disabled={isUploading}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Success state */}
-      {previewUrl && !isUploading && (
         <div className="flex items-center gap-2 text-sm text-green-600">
           <CheckCircle className="h-4 w-4" />
           <span>Изображение загружено</span>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {/* Hidden file input */}
+  // Область загрузки
+  return (
+    <div className={cn('space-y-4', className)}>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        className={cn(
+          'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
+          'hover:border-primary hover:bg-primary/5',
+          selectedFile ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+        )}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+            <ImageIcon className="h-6 w-6 text-muted-foreground" />
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-sm font-medium">
+              {selectedFile ? selectedFile.name : 'Перетащите изображение сюда'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              или нажмите для выбора файла (макс. {maxSizeMB}MB)
+            </p>
+            {selectedFile && (
+              <p className="text-xs text-muted-foreground">
+                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+            )}
+          </div>
+
+          {/* Кнопка выбора файла - видна всегда */}
+          <div className="flex gap-2 flex-wrap justify-center">
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('image-input')?.click()}
+              type="button"
+              disabled={isUploading}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Выбрать файл
+            </Button>
+
+            {/* Кнопки для загруженного файла */}
+            {selectedFile && (
+              <>
+                <Button
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                  type="button"
+                  variant="default"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Загрузить
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedFile(null)
+                    setError(null)
+                  }}
+                  type="button"
+                  disabled={isUploading}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Отмена
+                </Button>
+              </>
+            )}
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Скрытый input для выбора файла */}
       <input
         id="image-input"
         type="file"
