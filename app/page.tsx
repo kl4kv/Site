@@ -35,7 +35,7 @@ export default async function Home() {
               title={post.title}
               credits={post.credits}
               image={{
-                src: getImageUrl(post.cover_image) || "/images/placeholder.jpg",
+                src: getImageUrl(post.cover_image) || undefined,
                 alt: post.title,
               }}
             >
