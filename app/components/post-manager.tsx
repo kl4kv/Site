@@ -54,6 +54,7 @@ export function PostManager() {
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false)
 
   // Загрузка пользователя и постов
   useEffect(() => {
@@ -91,9 +92,30 @@ export function PostManager() {
     }
   }, [])
 
+  const handleSignIn = useCallback(async () => {
+    const supabase = createClient()
+    // Для разработки используем magic link или анонимный вход
+    // В продакшене здесь должна быть форма логина
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    
+    if (error) {
+      // Если OAuth не настроен, пробуем анонимный вход (если разрешён)
+      const { error: anonError } = await supabase.auth.signInAnonymously()
+      if (anonError) {
+        setMessage({ type: 'error', text: 'Ошибка входа: ' + error.message })
+      }
+    }
+  }, [])
+
   const handleSignOut = useCallback(async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
+    setUser(null)
     window.location.reload()
   }, [])
 
@@ -228,9 +250,11 @@ export function PostManager() {
             <Plus className="h-4 w-4 mr-2" />
             Новый пост
           </Button>
-          <Button variant="outline" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4" />
-          </Button>
+          {user && (
+            <Button variant="outline" size="icon" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -238,17 +262,6 @@ export function PostManager() {
         <div className="text-center py-12 text-muted-foreground">
           Загрузка...
         </div>
-      ) : !user ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground mb-4">
-              Пожалуйста, войдите для управления постами
-            </p>
-            <Button onClick={() => window.location.href = '/auth/login'}>
-              Войти
-            </Button>
-          </CardContent>
-        </Card>
       ) : (
         <>
 
