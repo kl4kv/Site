@@ -8,12 +8,6 @@ export function Navigation() {
         <nav className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="group">
-            <h1 className="text-4xl md:text-4xl font-light tracking-wide text-foreground">
-              Владимир
-            </h1>
-            <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Photographer
-            </span>
           </Link>
 
           {/* Social Links */}

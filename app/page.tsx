@@ -28,7 +28,7 @@ export default async function Home() {
         </section>
 
         {/* Blog entries */}
-        <section className="flex flex-col gap-24 pb-32">
+        <section className="flex flex-col gap-24 pb-0">
           {posts.map((post) => (
             <BlogEntry
               key={post.id}

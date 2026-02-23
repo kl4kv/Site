@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="bg-background text-foreground">
       <div className="container mx-auto px-6">
         {/* Main Footer Content */}
-        <div className="py-16 md:py-24">
+        <div className="py-8 md:py-12">
           <div className="flex flex-col items-center text-center space-y-8">
             {/* Branding */}
             <div className="space-y-4">
@@ -14,9 +14,6 @@ export function Footer() {
                 <h2 className="text-4xl md:text-4xl font-light tracking-wide opacity-50">
                   Владимир
                 </h2>
-                <p className="text-sm uppercase tracking-[0.3em] opacity-50 mt-2">
-                  Photographer
-                </p>
               </div>
             </div>
 
