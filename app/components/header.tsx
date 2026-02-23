@@ -16,14 +16,24 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="flex items-center gap-6">
+          {/* Navigation Links - Center */}
+          <div className="flex items-center gap-8">
+            <Link
+              href="/"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              HOME
+            </Link>
             <Link
               href="/photos"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
-              Фото
+              FOTO
             </Link>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center gap-4">
             <Link
               href="https://www.instagram.com/kl4kv/"
               target="_blank"
